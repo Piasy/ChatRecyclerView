@@ -50,3 +50,12 @@ chatRecyclerView.initAutoScroll(0, 3000, true);
 // 否则效果会有问题
 chatRecyclerView.notifyNewMessage();
 ```
+
+## 注意事项
+如果没有给 adapter 加入新数据, 请不要调用 `notifyNewMessage` 函数, 否则可能造成以下闪退。
+
+``` java
+IndexOutOfBoundsException: Inconsistency detected. Invalid item position
+```
+
+如果你需要把 recycler view 滚动到指定位置, 你可以调用 `scrollToPosition` 或者 `smoothScrollToPosition`。
