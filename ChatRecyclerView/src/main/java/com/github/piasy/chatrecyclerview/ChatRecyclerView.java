@@ -53,6 +53,7 @@ public class ChatRecyclerView extends RecyclerView {
     private boolean mAutoScrollOnUserLeave;
 
     private Runnable mAutoScroll;
+    private boolean mHasPendingMessage;
 
     public void initAutoScroll(int newMessagePosition, long timeout,
             boolean autoScrollOnUserLeave) {
@@ -64,11 +65,12 @@ public class ChatRecyclerView extends RecyclerView {
             mAutoScroll = new Runnable() {
                 @Override
                 public void run() {
-                    if (getChildCount() > 0) {
+                    if (mHasPendingMessage) {
                         getAdapter().notifyItemInserted(mNewMessagePosition);
-                        if (getChildCount() > 0) {
-                            scrollToPosition(mNewMessagePosition);
-                        }
+                        scrollToPosition(mNewMessagePosition);
+                        mHasPendingMessage = false;
+                    } else if (getChildCount() > 0) {
+                        smoothScrollToPosition(mNewMessagePosition);
                     }
                 }
             };
@@ -106,6 +108,8 @@ public class ChatRecyclerView extends RecyclerView {
                 scrollToPosition(mNewMessagePosition);
             }
             removeCallbacks(mAutoScroll);
+        } else {
+            mHasPendingMessage = true;
         }
     }
 

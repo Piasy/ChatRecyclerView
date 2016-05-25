@@ -38,7 +38,7 @@ ext {
     artifactDescription = 'Implement your user friendly chat RecyclerView in one line!'
     artifactLabels = ['RecyclerView', 'chat']
     releaseVersionCode = 1
-    releaseVersionName = '1.0.0'
+    releaseVersionName = '1.1.0'
 
     androidCompileSdkVersion = 'Google Inc.:Google APIs:23'
     androidBuildToolsVersion = '23.0.3'

@@ -23,7 +23,7 @@ allprojects {
     }
 }
 
-compile 'com.github.piasy:ChatRecyclerView:1.0.0'
+compile 'com.github.piasy:ChatRecyclerView:1.1.0'
 ```
 
 ### 代码使用
