@@ -1,0 +1,48 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.1.0'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.3.1'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.3'
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+ext {
+    userName = 'Piasy'
+    developer = [
+            id   : 'piasy',
+            name : 'piasy',
+            email: 'xz4215@gmail.com'
+    ]
+    license = [
+            id  : 'MIT',
+            name: 'The MIT License (MIT)',
+            url : 'http://opensource.org/licenses/MIT'
+    ]
+    groupName = 'com.github.piasy'
+    artifactName = 'ChatRecyclerView'
+    artifactDescription = 'Implement your user friendly chat RecyclerView in one line!'
+    artifactLabels = ['RecyclerView', 'chat']
+    releaseVersionCode = 1
+    releaseVersionName = '1.0.0'
+
+    androidCompileSdkVersion = 'Google Inc.:Google APIs:23'
+    androidBuildToolsVersion = '23.0.3'
+    androidSupportSdkVersion = '23.4.0'
+    minSdkVersion = 14
+    targetSdkVersion = 23
+}
