@@ -53,7 +53,7 @@ public class ChatRecyclerView extends RecyclerView {
     private boolean mAutoScrollOnUserLeave;
 
     private Runnable mAutoScroll;
-    private boolean mHasPendingMessage;
+    private volatile int mPendingMsgCount;
 
     public void initAutoScroll(int newMessagePosition, long timeout,
             boolean autoScrollOnUserLeave) {
@@ -65,11 +65,14 @@ public class ChatRecyclerView extends RecyclerView {
             mAutoScroll = new Runnable() {
                 @Override
                 public void run() {
-                    if (mHasPendingMessage) {
-                        getAdapter().notifyItemInserted(mNewMessagePosition);
+                    if (mPendingMsgCount > 0) {
+                        // notifyItem*** is problematic, causing
+                        // `java.lang.IndexOutOfBoundsException: Inconsistency detected. Invalid view holder adapter`
+                        // use notifyDataSetChanged instead
+                        getAdapter().notifyDataSetChanged();
                         scrollToPosition(mNewMessagePosition);
-                        mHasPendingMessage = false;
-                    } else if (getChildCount() > 0) {
+                        mPendingMsgCount = 0;
+                    } else if (getAdapter().getItemCount() > 0) {
                         smoothScrollToPosition(mNewMessagePosition);
                     }
                 }
@@ -103,13 +106,23 @@ public class ChatRecyclerView extends RecyclerView {
 
     public void notifyNewMessage() {
         if (System.currentTimeMillis() - mLastScrollTime > mAutoScrollTimeout) {
-            getAdapter().notifyItemInserted(mNewMessagePosition);
-            if (getChildCount() > 0) {
+            if (mPendingMsgCount > 0) {
+                // notifyItem*** is problematic, causing
+                // `java.lang.IndexOutOfBoundsException: Inconsistency detected. Invalid view holder adapter`
+                // use notifyDataSetChanged instead
+                getAdapter().notifyDataSetChanged();
                 scrollToPosition(mNewMessagePosition);
+                mPendingMsgCount = 0;
+            } else if (mPendingMsgCount == 0) {
+                // normal case, we can have animation :)
+                getAdapter().notifyItemInserted(mNewMessagePosition);
+                scrollToPosition(mNewMessagePosition);
+            } else if (getAdapter().getItemCount() > 0) {
+                smoothScrollToPosition(mNewMessagePosition);
             }
             removeCallbacks(mAutoScroll);
         } else {
-            mHasPendingMessage = true;
+            mPendingMsgCount++;
         }
     }
 

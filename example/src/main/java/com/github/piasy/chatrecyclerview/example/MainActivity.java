@@ -12,33 +12,39 @@ import com.github.piasy.chatrecyclerview.ChatRecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements InputDialog.Action {
 
-    private int mCount;
+    private Adapter mAdapter;
+    private ChatRecyclerView mChatRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final ChatRecyclerView chatRecyclerView = (ChatRecyclerView) findViewById(R.id.mChatRv);
-        chatRecyclerView.setLayoutManager(
+        mChatRecyclerView = (ChatRecyclerView) findViewById(R.id.mChatRv);
+        mChatRecyclerView.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true));
-        final Adapter adapter = new Adapter();
-        chatRecyclerView.setAdapter(adapter);
-        chatRecyclerView.initAutoScroll(0, 3000, true);
+        mAdapter = new Adapter();
+        mChatRecyclerView.setAdapter(mAdapter);
+        mChatRecyclerView.initAutoScroll(0, 5000, true);
 
         findViewById(R.id.mBtnAdd).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                adapter.add(mCount++);
-                chatRecyclerView.notifyNewMessage();
+                new InputDialog().show(getFragmentManager(), "InputDialog");
             }
         });
     }
 
+    @Override
+    public void send(String text) {
+        mAdapter.add(text);
+        mChatRecyclerView.notifyNewMessage();
+    }
+
     static class Adapter extends RecyclerView.Adapter<VH> {
-        List<Integer> mItems = new ArrayList<>();
+        List<String> mItems = new ArrayList<>();
 
         @Override
         public VH onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -48,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(VH holder, int position) {
-            holder.mTv.setText(String.valueOf(mItems.get(position)));
+            holder.mTv.setText(mItems.get(position));
         }
 
         @Override
@@ -56,8 +62,8 @@ public class MainActivity extends AppCompatActivity {
             return mItems.size();
         }
 
-        void add(int item) {
-            mItems.add(0, item);
+        void add(String text) {
+            mItems.add(0, text);
         }
     }
 
