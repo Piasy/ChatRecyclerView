@@ -26,13 +26,33 @@ package com.github.piasy.chatrecyclerview;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.view.ViewTreeObserver;
 
 /**
  * Created by Piasy{github.com/Piasy} on 5/25/16.
  */
 public class ChatRecyclerView extends RecyclerView {
+
+    private long mLastScrollTime;
+    private boolean mIsIdleFromDrag;
+    private int mNewMessagePosition;
+    private long mAutoScrollTimeout;
+    private boolean mAutoScrollOnUserLeave;
+    private Runnable mAutoScroll;
+    /**
+     * There is a bug, in Xiaomi MI NOTE LTE, and One plus 3, YOLO's live room chat,
+     * when use want to input text, we show a dialog fragment, when this dialog fragment shows,
+     * the recycler view show its first item, without triggering the scroll callback.
+     *
+     * So we observe the global layout changes, and when we are showing the first item
+     * (last visible position is item count - 1), we force scroll to bottom immediately.
+     */
+    private ViewTreeObserver.OnGlobalLayoutListener mScroll2TopFix;
+    private volatile int mPendingMsgCount;
+
     public ChatRecyclerView(Context context) {
         this(context, null);
     }
@@ -44,16 +64,6 @@ public class ChatRecyclerView extends RecyclerView {
     public ChatRecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
-
-    private long mLastScrollTime;
-    private boolean mIsIdleFromDrag;
-
-    private int mNewMessagePosition;
-    private long mAutoScrollTimeout;
-    private boolean mAutoScrollOnUserLeave;
-
-    private Runnable mAutoScroll;
-    private volatile int mPendingMsgCount;
 
     public void initAutoScroll(int newMessagePosition, long timeout,
             boolean autoScrollOnUserLeave) {
@@ -67,7 +77,8 @@ public class ChatRecyclerView extends RecyclerView {
                 public void run() {
                     if (mPendingMsgCount > 0) {
                         // notifyItem*** is problematic, causing
-                        // `java.lang.IndexOutOfBoundsException: Inconsistency detected. Invalid view holder adapter`
+                        // `java.lang.IndexOutOfBoundsException: Inconsistency detected.
+                        // Invalid view holder adapter`
                         // use notifyDataSetChanged instead
                         getAdapter().notifyDataSetChanged();
                         scrollToPosition(mNewMessagePosition);
@@ -78,6 +89,18 @@ public class ChatRecyclerView extends RecyclerView {
                 }
             };
         }
+        mScroll2TopFix = new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if (getLayoutManager() instanceof LinearLayoutManager) {
+                    int lastVisiblePos = ((LinearLayoutManager) getLayoutManager())
+                                                 .findLastVisibleItemPosition() + 1;
+                    if (lastVisiblePos == getAdapter().getItemCount()) {
+                        mAutoScroll.run();
+                    }
+                }
+            }
+        };
 
         addOnScrollListener(new OnScrollListener() {
             @Override
@@ -102,13 +125,16 @@ public class ChatRecyclerView extends RecyclerView {
                 }
             }
         });
+
+        getViewTreeObserver().addOnGlobalLayoutListener(mScroll2TopFix);
     }
 
     public void notifyNewMessage() {
         if (System.currentTimeMillis() - mLastScrollTime > mAutoScrollTimeout) {
             if (mPendingMsgCount > 0) {
                 // notifyItem*** is problematic, causing
-                // `java.lang.IndexOutOfBoundsException: Inconsistency detected. Invalid view holder adapter`
+                // `java.lang.IndexOutOfBoundsException: Inconsistency detected.
+                // Invalid view holder adapter`
                 // use notifyDataSetChanged instead
                 getAdapter().notifyDataSetChanged();
                 scrollToPosition(mNewMessagePosition);
@@ -129,6 +155,11 @@ public class ChatRecyclerView extends RecyclerView {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        removeCallbacks(mAutoScroll);
+        if (mAutoScroll != null) {
+            removeCallbacks(mAutoScroll);
+        }
+        if (mScroll2TopFix != null) {
+            getViewTreeObserver().removeOnGlobalLayoutListener(mScroll2TopFix);
+        }
     }
 }

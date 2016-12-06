@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<!--
   ~ The MIT License (MIT)
   ~
   ~ Copyright (c) 2016 Piasy
@@ -23,17 +23,10 @@
   -->
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:background="@drawable/demo"
+             tools:context="com.github.piasy.multiplefragmentlayerdemo.UnderFragment"
         >
-    <FrameLayout
-            android:id="@+id/mLayer1"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            />
-    <FrameLayout
-            android:id="@+id/mLayer2"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            />
 </FrameLayout>

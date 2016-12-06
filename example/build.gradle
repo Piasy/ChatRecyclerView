@@ -23,4 +23,6 @@ android {
 dependencies {
     compile "com.android.support:appcompat-v7:${rootProject.ext.androidSupportSdkVersion}"
     compile project(':ChatRecyclerView')
+
+    compile 'net.yslibrary.keyboardvisibilityevent:keyboardvisibilityevent:2.0.0'
 }

@@ -25,18 +25,20 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="50dp">
+        android:layout_height="match_parent"
+        >
     <EditText
             android:id="@+id/mEtInput"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_gravity="bottom"
             android:layout_marginRight="80dp"
             />
     <Button
             android:id="@+id/mBtnSend"
             android:layout_width="80dp"
             android:layout_height="50dp"
+            android:layout_gravity="right|bottom"
             android:text="send"
-            android:layout_gravity="right"
             />
 </FrameLayout>

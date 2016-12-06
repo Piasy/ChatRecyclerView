@@ -25,20 +25,33 @@
 package com.github.piasy.chatrecyclerview.example;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
-public class MainActivity extends AppCompatActivity {
+public class OverlayFragment extends Fragment {
+
+    public OverlayFragment() {
+        // Required empty public constructor
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_overlay, container, false);
+    }
 
-        // NOTE: example is broken
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.mLayer1, new UnderFragment())
-                //.add(R.id.mLayer2, new OverlayFragment())
-                .add(R.id.mLayer2, new BlankFragment())
-                .commit();
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        view.findViewById(R.id.mBtnClick).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new InputDialogFragment()
+                        .show(getFragmentManager(), "InputDialogFragment");
+            }
+        });
     }
 }
